@@ -1,10 +1,14 @@
-const SHA256 = require("crypto-js/sha256");
+import SHA256 from "crypto-js/sha256";
 
 class Block {
-  constructor(index, timestamp, data, previousHash = "") {
-    this.index = index;
-    this.timestamp = timestamp;
-    this.data = data;
+  hash: string;
+
+  constructor(
+    public index: number,
+    public timestamp: Date,
+    public data: any,
+    public previousHash = ""
+  ) {
     this.previousHash = previousHash;
     this.hash = this.calculateHash();
   }
@@ -20,25 +24,27 @@ class Block {
 }
 
 class Blockchain {
+  chain: Block[];
+
   constructor() {
     this.chain = [this.createGenesisBlock()];
   }
 
   createGenesisBlock() {
-    return new Block(0, new Date().toUTCString(), "Genesis block", "0");
+    return new Block(0, new Date(), "Genesis block", "0");
   }
 
   getLatestBlock() {
     return this.chain[this.chain.length - 1];
   }
 
-  addBlock(newBlock) {
+  addBlock(newBlock: Block) {
     newBlock.previousHash = this.getLatestBlock().hash;
     newBlock.hash = newBlock.calculateHash();
     this.chain.push(newBlock);
   }
 
-  isChainValid() {
+  isChainValid(): boolean {
     for (let i = 1; i < this.chain.length; i++) {
       const currentBlock = this.chain[i];
       const previousBlock = this.chain[i - 1];
@@ -57,8 +63,8 @@ class Blockchain {
 }
 
 const coin = new Blockchain();
-coin.addBlock(new Block(1, new Date().toUTCString(), { amount: 5 }));
-coin.addBlock(new Block(2, new Date().toUTCString(), { amount: 15 }));
+coin.addBlock(new Block(1, new Date(), { amount: 5 }));
+coin.addBlock(new Block(2, new Date(), { amount: 15 }));
 
 console.log("Result = ", JSON.stringify(coin, null, 4));
 console.log("Is blockchain valid? " + coin.isChainValid());
